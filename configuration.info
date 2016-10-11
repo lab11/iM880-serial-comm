@@ -1,0 +1,32 @@
+Radio Mode= 0:Standard
+
+Group Address= 
+Device Address=
+Destination Group Address=
+Destination Device Address= 
+
+Modulation= 0:LoRa
+Freq Band= 915 MHz
+RF Carrier Freq= 915 000 000 Hz
+
+Signal Bandwidth= 0:125 kHz
+Spreading Factor= 0:SF7 (want SF6 but not available)
+Error Coding= 1:4/5 (lowest overhead ratio=1.25)
+
+Tx Narrow Filter on/off= off
+Listen before Talk(LBT) on/off= off
+Tx Power Level= 5:5 dBm (lowest power option available=5mA)
+LBT Threshold= -90 dBm
+
+Rx Control= Rx always on
+Rx Window Time= 1000 ms
+
+LED Control= all checked (Rx packet event, Tx packet event, Alive indicator,
+                            Button pressed indicator)
+
+Misc Options= all checked except AES (Extended RF packet HCI output format,
+                    RTC on, HCI TX indication, HCI power-up indication, 
+                    HCI button presssed indication)
+
+Automatic Power Saving= off (also recommends turning off RTC which is on as of 
+                            now) this is now off for debugging

@@ -1,0 +1,31 @@
+{
+  "name": "iM880-serial-comm",
+  "version": "1.0.4",
+  "description": "serial communication with iM880",
+  "main": "iM880.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lab11/iM880-serial-comm.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "IMST",
+    "iM880",
+    "LoRa"
+  ],
+  "author": {
+    "name": "Samuel Rohrer",
+    "email": "rohrer@umich.edu"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "serialport": "^4.0.3",
+    "slip": "^1.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/lab11/iM880-serial-comm/issues"
+  },
+  "homepage": "https://github.com/lab11/iM880-serial-comm#readme"
+}
