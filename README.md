@@ -30,8 +30,10 @@ device.on('config-done', function(statusmsg) {
         var msg = new Uint8Array([ 4, 67, 23, 12, 90, 100]);
         DEST_DEVICE_ID    = 0x09; // in range [0x0000, 0xFFFF)
         DEST_DEVICE_GROUP = 0x10; // in range [0x00, 0xFF)
-        device.send(DEST_DEVICE_ID, DEST_DEVICE_GROUP, msg);
-    }
+        device.sendConfirmed(DEST_DEVICE_ID, DEST_DEVICE_GROUP, msg);
+        var broadcast_msg = new Uint8Array([ 5, 8, 9]);
+        device.sendBroadcast(broadcast_msg);
+   }
 });
 
 // callback for reception of a confirmed message

@@ -61,6 +61,7 @@ const WAIT_CONFIG_ACK = 0x02;
 const WAIT_CMD = 0x03;
 const WAIT_TRANSMIT = 0x04;
 const WAIT_RX_ACK = 0x05;
+const WAIT_TRANSMIT_UNCONFIRMED = 0x06;
 
 // require events and slip and serial port
 var slip = require('slip');
@@ -88,6 +89,7 @@ var iM880 = function(deviceID, deviceGroup, serport) {
 
     // check for received messages always
     if (data) {
+      // confirmed data reception
       if ((data[1] == RADIOLINK_MSG_C_DATA_RX_IND) &&
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
         // if data[0], 0th bit ==0 then non extended form
@@ -104,7 +106,6 @@ var iM880 = function(deviceID, deviceGroup, serport) {
             that.emit('rx-msg', rxmsgdata);
         } else {
           // extended mode with more information, return entire msg instead
-            console.log('msg is ' + data);
             var rxmsgdata = {
                 destGroupAddr   : data[3],
                 destDeviceAddr  : ((data[4] << 8) + data[5]),
@@ -115,9 +116,36 @@ var iM880 = function(deviceID, deviceGroup, serport) {
                 snr             : data[data.length-7],
                 receivedTime    : now
             };
-            console.log('data-9 ' + data[data.length-9]);
-            console.log('data-8 ' + data[data.length-8]);
-
+            that.emit('rx-msg', rxmsgdata);
+        }
+      }
+      // unconfirmed data reception
+      else if ((data[1] == RADIOLINK_MSG_U_DATA_RX_IND) &&
+          that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
+        // if data[0], 0th bit ==0 then non extended form
+        var now = new Date().toISOString();
+        if (!(data[2] & 1)) {
+            var rxmsgdata = {
+                destGroupAddr   : data[3],
+                destDeviceAddr  : ((data[4] << 8) + data[5]),
+                srcGroupAddr    : data[6],
+                srcDeviceAddr   : ((data[7] << 8) + data[8]),
+                payload           : data.slice(9, data.length-2),
+                receivedTime      : now
+            };
+            that.emit('rx-msg', rxmsgdata);
+        } else {
+          // extended mode with more information, return entire msg instead
+            var rxmsgdata = {
+                destGroupAddr   : data[3],
+                destDeviceAddr  : ((data[4] << 8) + data[5]),
+                srcGroupAddr    : data[6],
+                srcDeviceAddr   : ((data[7] << 8) + data[8]),
+                payload         : data.slice(9, data.length-9),
+                rssi            : ((data[data.length-9] << 8) + data[data.length-8]),
+                snr             : data[data.length-7],
+                receivedTime    : now
+            };
             that.emit('rx-msg', rxmsgdata);
         }
       }
@@ -156,6 +184,9 @@ var iM880 = function(deviceID, deviceGroup, serport) {
         if (data[1] == RADIOLINK_MSG_SEND_C_DATA_RSP &&
             that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
           that.currState = WAIT_TRANSMIT;
+        } else if (data[1] == RADIOLINK_MSG_SEND_U_DATA_RSP &&
+            that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
+          that.currState = WAIT_TRANSMIT_UNCONFIRMED;
         }
       }
       break;
@@ -168,6 +199,15 @@ var iM880 = function(deviceID, deviceGroup, serport) {
         }
       }
       break;
+    case WAIT_TRANSMIT_UNCONFIRMED:
+      if (data) {
+        if (data[1] == RADIOLINK_MSG_U_DATA_TX_IND &&
+            that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
+          that.currState = WAIT_CMD;
+          txdata = that.interpretStatusByte('radio', data[2]);
+          that.emit('tx-msg-done', txdata);
+        }
+      }
     case WAIT_RX_ACK:
       if (data) {
         if (data[1] == RADIOLINK_MSG_ACK_RX_IND &&
@@ -184,14 +224,15 @@ var iM880 = function(deviceID, deviceGroup, serport) {
       break;
     default:
       that.currState = INIT;
-    }
-  });
+    
+      }
+      });
 };
 
 util.inherits(iM880, events.EventEmitter);
 
 // send method
-iM880.prototype.send = function(destDevice, destGroup, msg) {
+iM880.prototype.sendConfirmed = function(destDevice, destGroup, msg) {
   // make the packet and add destination addresses to msg
   const newmsg = new Uint8Array(msg.length + 3);
   newmsg[0] = destGroup;
@@ -203,6 +244,23 @@ iM880.prototype.send = function(destDevice, destGroup, msg) {
   }
   var packet =
       this.makePacket(RADIOLINK_ID, RADIOLINK_MSG_SEND_C_DATA_REQ, newmsg);
+  // send the packet
+  this.port.write(packet);
+  this.currState = WAIT_CMD;
+};
+
+iM880.prototype.sendBroadcast = function(msg) {
+  // make the packet and add destination addresses to msg
+  const newmsg = new Uint8Array(msg.length + 3);
+  newmsg[0] = 0xFF;
+  newmsg[1] = 0xFF;
+  newmsg[2] = 0xFF;
+
+  for (var i = 0; i < msg.length; i++) {
+    newmsg[3 + i] = msg[i];
+  }
+  var packet =
+      this.makePacket(RADIOLINK_ID, RADIOLINK_MSG_SEND_U_DATA_REQ, newmsg);
   // send the packet
   this.port.write(packet);
   this.currState = WAIT_CMD;
