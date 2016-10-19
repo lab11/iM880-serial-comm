@@ -18,7 +18,9 @@ var iM880 = require('iM880');
 DEVICE_ID    = 0x04; // in range [0x0000, 0xFFFF)
 DEVICE_GROUP = 0x10; // in range [0x00, 0xFF)
 SERIAL_PORT  = '/dev/ttyUSB1'; // optional argument, defaults to /dev/ttyUSB0
-device = new iM880(DEVICE_ID, DEVICE_GROUP, SERIAL_PORT);
+SF = 10;  // optional argument, defaults to 10
+TX_PWR = 20; // optional argument, defaults to 20
+device = new iM880(DEVICE_ID, DEVICE_GROUP, SERIAL_PORT, SF, TX_PWR);
 
 // callback for when constructor done and device configured
 device.on('config-done', function(statusmsg) {

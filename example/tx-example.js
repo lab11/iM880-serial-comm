@@ -4,7 +4,7 @@ var iM880 = require('../iM880');
 
 // set the endpoint ID
 DEVICE_ID = 0x07;
-DEVICE_GROUP = 0x10;
+DEVICE_GROUP = 0x11;
 
 // call the construction with and endpointID
 device = new iM880(DEVICE_ID, DEVICE_GROUP );
@@ -14,9 +14,8 @@ device.on('config-done', function(statusmsg) {
   // print the ID of the endpoint
   console.log('Configuration status: ' + statusmsg);
   // send a message
+  //device.sendConfirmed(0x09, 0x11, msg);
   device.sendBroadcast(msg);
-  var cmsg = new Uint8Array([7, 90, 32]);
-  device.sendConfirmed(0x09, 0x10, cmsg);
 });
 
 // listen for new messages and print them
