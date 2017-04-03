@@ -1,0 +1,4 @@
+language: node_js
+
+script:
+  - ./node_modules/jshint/bin/jshint *.js

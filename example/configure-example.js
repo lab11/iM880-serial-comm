@@ -3,13 +3,13 @@
 var iM880 = require('../iM880');
 
 // set the endpoint ID
+SERIAL_PORT = '/dev/ttyUSB1';
 DEVICE_ID = 0x09;
 DEVICE_GROUP = 0x10;
-SERIAL_PORT = '/dev/ttyUSB1';
-SF = 10;
+SF = 9;
+BANDWIDTH = 250000;
+ERROR_CODING = 4/6;
 TX_PWR = 10;
-BANDWIDTH = 125000;
-ERROR_CODING = 4/5;
 
 // call the construction with and endpointID
 device = new iM880(SERIAL_PORT, DEVICE_ID, DEVICE_GROUP, SF, BANDWIDTH, ERROR_CODING, TX_PWR);
@@ -28,8 +28,8 @@ device.on('rx-msg', function(data) {
 
 setTimeout(function() {
     console.log("Changing settings");
-    new_spreading_factor = 7;
-    new_bandwidth = 250000;
+    new_spreading_factor = 10;
+    new_bandwidth = 125000;
     new_error_coding = 4/5;
     device.configure(DEVICE_ID, DEVICE_GROUP, new_spreading_factor, new_bandwidth, new_error_coding, TX_PWR);
-}, 20*1000);
+}, 10*1000);
