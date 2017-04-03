@@ -72,10 +72,10 @@ var util = require('util');
 var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding, tx_pwr) {
 
   // default parameters
-  if (sf == null) {
+  if (sf === null) {
     sf = 10;
   }
-  if(tx_pwr == null) {
+  if(tx_pwr === null) {
     tx_pwr = 20;
   }
 
@@ -121,12 +121,13 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
     // check for received messages always
     if (data) {
       // confirmed data reception
+      var now = new Date().toISOString();
+      var rxmsgdata = {};
       if ((data[1] == RADIOLINK_MSG_C_DATA_RX_IND) &&
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
         // if data[0], 0th bit ==0 then non extended form
-        var now = new Date().toISOString();
         if (!(data[2] & 1)) {
-            var rxmsgdata = {
+            rxmsgdata = {
                 destGroupAddr   : data[3],
                 destDeviceAddr  : ((data[4] << 8) + data[5]),
                 srcGroupAddr    : data[6],
@@ -134,10 +135,9 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 payload           : data.slice(9, data.length-2),
                 receivedTime      : now
             };
-            that.emit('rx-msg', rxmsgdata);
         } else {
           // extended mode with more information, return entire msg instead
-            var rxmsgdata = {
+            rxmsgdata = {
                 destGroupAddr   : data[3],
                 destDeviceAddr  : ((data[4] << 8) + data[5]),
                 srcGroupAddr    : data[6],
@@ -147,16 +147,15 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 snr             : data[data.length-7],
                 receivedTime    : now
             };
-            that.emit('rx-msg', rxmsgdata);
         }
+        that.emit('rx-msg', rxmsgdata);
       }
       // unconfirmed data reception
       else if ((data[1] == RADIOLINK_MSG_U_DATA_RX_IND) &&
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
         // if data[0], 0th bit ==0 then non extended form
-        var now = new Date().toISOString();
         if (!(data[2] & 1)) {
-            var rxmsgdata = {
+            rxmsgdata = {
                 destGroupAddr   : data[3],
                 destDeviceAddr  : ((data[4] << 8) + data[5]),
                 srcGroupAddr    : data[6],
@@ -164,10 +163,9 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 payload           : data.slice(9, data.length-2),
                 receivedTime      : now
             };
-            that.emit('rx-msg', rxmsgdata);
         } else {
           // extended mode with more information, return entire msg instead
-            var rxmsgdata = {
+            rxmsgdata = {
                 destGroupAddr   : data[3],
                 destDeviceAddr  : ((data[4] << 8) + data[5]),
                 srcGroupAddr    : data[6],
@@ -177,8 +175,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 snr             : data[data.length-7],
                 receivedTime    : now
             };
-            that.emit('rx-msg', rxmsgdata);
         }
+        that.emit('rx-msg', rxmsgdata);
       }
     }
 
@@ -239,6 +237,7 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
           that.emit('tx-msg-done', txdata);
         }
       }
+      break;
     case WAIT_RX_ACK:
       if (data) {
         if (data[1] == RADIOLINK_MSG_ACK_RX_IND &&
@@ -283,10 +282,10 @@ iM880.prototype.sendConfirmed = function(destDevice, destGroup, msg) {
 iM880.prototype.configure = function(deviceID, deviceGroup, sf, bandwidth, error_coding, tx_pwr) {
 
   // default parameters
-  if (sf == null) {
+  if (sf === null) {
     sf = 10;
   }
-  if (tx_pwr == null) {
+  if (tx_pwr === null) {
     tx_pwr = 20;
   }
 
@@ -294,7 +293,7 @@ iM880.prototype.configure = function(deviceID, deviceGroup, sf, bandwidth, error
   bandwidth_num = 0;
   if (bandwidth == 500000) {
     bandwidth_num = 2;
-  } else if (bandwidth = 250000) {
+  } else if (bandwidth == 250000) {
     bandwidth_num = 1;
   } else {
     // 125000 bandwidth
@@ -322,7 +321,7 @@ iM880.prototype.configure = function(deviceID, deviceGroup, sf, bandwidth, error
       DEVMGMT_ID, DEVMGMT_MSG_SET_RADIO_CONFIG_REQ, config_msg);
   this.currState = WAIT_CONFIG_ACK;
   this.port.write(packet);
-}
+};
 
 iM880.prototype.sendBroadcast = function(msg) {
   // make the packet and add destination addresses to msg
@@ -371,7 +370,7 @@ iM880.prototype.makePacket = function(endpointID, msgID, message) {
 iM880.prototype.interpretStatusByte = function(type, val) {
   var msg = 0;
   if (type == 'config') {
-    if (val == 0x00) {
+    if (val === 0x00) {
       msg = 'successful!';
     } else if (val == 0x01) {
       msg = 'operation failed';
@@ -381,7 +380,7 @@ iM880.prototype.interpretStatusByte = function(type, val) {
       msg = 'HCI message contains wrong parameter';
     }
   } else if (type == 'radio') {
-    if (val == 0x00) {
+    if (val === 0x00) {
       msg = 'successful!';
     } else if (val == 0x01) {
       msg = 'failed';
