@@ -22,7 +22,7 @@ SF = 10;  // spreading factor, optional argument, defaults to 10
 BANDWIDTH = 125000; // bandwidth, optional argument, defaults to 125000
 ERROR_CODING = 4/5; // error coding, optional argument, defaults to 4/5
 TX_PWR = 20; // transmit power in dBm, optional argument, defaults to 20
-device = new iM880(DEVICE_ID, DEVICE_GROUP, SERIAL_PORT, SF, BANDWIDTH, ERROR_CODING, TX_PWR);
+device = new iM880(SERIAL_PORT, DEVICE_ID, DEVICE_GROUP, SF, BANDWIDTH, ERROR_CODING, TX_PWR);
 
 // callback for when constructor done and device configured
 device.on('config-done', function(statusmsg) {
