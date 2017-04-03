@@ -122,6 +122,7 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
     if (data) {
       // confirmed data reception
       var now = new Date().toISOString();
+      var dataBuf = Buffer(data);
       var rxmsgdata = {};
       if ((data[1] == RADIOLINK_MSG_C_DATA_RX_IND) &&
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
@@ -143,8 +144,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 srcGroupAddr    : data[6],
                 srcDeviceAddr   : ((data[7] << 8) + data[8]),
                 payload         : data.slice(9, data.length-9),
-                rssi            : ((data[data.length-9] << 8) + data[data.length-8]),
-                snr             : data[data.length-7],
+                rssi            : dataBuf.readInt16LE(dataBuf.length-9),
+                snr             : dataBuf.readInt8(dataBuf.length-7),
                 receivedTime    : now
             };
         }
@@ -171,8 +172,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 srcGroupAddr    : data[6],
                 srcDeviceAddr   : ((data[7] << 8) + data[8]),
                 payload         : data.slice(9, data.length-9),
-                rssi            : ((data[data.length-9] << 8) + data[data.length-8]),
-                snr             : data[data.length-7],
+                rssi            : dataBuf.readInt16LE(dataBuf.length-9), 
+                snr             : dataBuf.readInt8(dataBuf.length-7), 
                 receivedTime    : now
             };
         }
