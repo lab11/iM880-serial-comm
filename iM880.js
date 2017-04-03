@@ -173,7 +173,7 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 srcDeviceAddr   : ((data[7] << 8) + data[8]),
                 payload         : data.slice(9, data.length-9),
                 rssi            : dataBuf.readInt16LE(dataBuf.length-9), 
-                snr             : dataBuf.readInt8(dataBuf.legnth-7), 
+                snr             : dataBuf.readInt8(dataBuf.length-7), 
                 receivedTime    : now
             };
         }
