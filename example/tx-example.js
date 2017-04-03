@@ -1,13 +1,18 @@
-#!/usr/bin / env node
+#!/usr/bin/env node
 
 var iM880 = require('../iM880');
 
 // set the endpoint ID
+SERIAL_PORT = '/dev/ttyUSB1';
 DEVICE_ID = 0x07;
-DEVICE_GROUP = 0x11;
+DEVICE_GROUP = 0x10;
+SF = 10;
+BANDWIDTH = 125000;
+ERROR_CODING = 4/5;
+TX_PWR = 10;
 
 // call the construction with and endpointID
-device = new iM880(DEVICE_ID, DEVICE_GROUP );
+device = new iM880(SERIAL_PORT, DEVICE_ID, DEVICE_GROUP, SF, BANDWIDTH, ERROR_CODING, TX_PWR);
 // wait for config-done message and print endpointID
 var msg = new Uint8Array([ 9, 8, 10, 67, 89, 100, 43 ]);
 device.on('config-done', function(statusmsg) {
