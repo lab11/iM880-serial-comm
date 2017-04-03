@@ -27,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/lab11/iM880-serial-comm/issues"
   },
-  "homepage": "https://github.com/lab11/iM880-serial-comm#readme"
+  "homepage": "https://github.com/lab11/iM880-serial-comm#readme",
+  "devDependencies": {
+    "jshint": "^2.9.4"
+  }
 }
