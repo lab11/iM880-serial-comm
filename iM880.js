@@ -125,6 +125,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
         // if data[0], 0th bit ==0 then non extended form
         var now = new Date().toISOString();
+        
+        var dataBuf = Buffer(data);
         if (!(data[2] & 1)) {
             var rxmsgdata = {
                 destGroupAddr   : data[3],
@@ -143,8 +145,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 srcGroupAddr    : data[6],
                 srcDeviceAddr   : ((data[7] << 8) + data[8]),
                 payload         : data.slice(9, data.length-9),
-                rssi            : ((data[data.length-9] << 8) + data[data.length-8]),
-                snr             : data[data.length-7],
+                rssi            : dataBuf.readInt16LE(dataBuf.length-9),
+                snr             : dataBuf.readInt8(dataBuf.length-7),
                 receivedTime    : now
             };
             that.emit('rx-msg', rxmsgdata);
@@ -155,6 +157,9 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
           that.CRC16_Check(data, 0, data.length, CRC16_INIT_VALUE)) {
         // if data[0], 0th bit ==0 then non extended form
         var now = new Date().toISOString();
+        
+        var dataBuf = Buffer(data);
+
         if (!(data[2] & 1)) {
             var rxmsgdata = {
                 destGroupAddr   : data[3],
@@ -173,8 +178,8 @@ var iM880 = function(serport, deviceID, deviceGroup, sf, bandwidth, error_coding
                 srcGroupAddr    : data[6],
                 srcDeviceAddr   : ((data[7] << 8) + data[8]),
                 payload         : data.slice(9, data.length-9),
-                rssi            : ((data[data.length-9] << 8) + data[data.length-8]),
-                snr             : data[data.length-7],
+                rssi            : dataBuf.readInt16LE(dataBuf.length-9), 
+                snr             : dataBuf.readInt8(dataBuf.legnth-7), 
                 receivedTime    : now
             };
             that.emit('rx-msg', rxmsgdata);
