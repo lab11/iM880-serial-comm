@@ -69,7 +69,9 @@ var SerialPort = require('serialport');
 var events = require('events');
 var util = require('util');
 
-var iM880 = function(deviceID, deviceGroup, serport, sf, tx_pwr) {
+var iM880 = function(deviceID, deviceGroup, serport, sf, bandwidth, error_coding, tx_pwr) {
+
+
   if (serport == null) {
     serport = '/dev/ttyUSB0';
   }
@@ -79,11 +81,18 @@ var iM880 = function(deviceID, deviceGroup, serport, sf, tx_pwr) {
   if(tx_pwr == null) {
     tx_pwr = 20;
   }
+  if(bandwidth == null){
+      bandwidth = 0;
+  }
+  if(error_coding = null){
+      error_coding = 1;
+  }
 
   this.port = new SerialPort(
       serport, {baudrate : 115200, parser : SerialPort.parsers.raw});
   this.decoder = new slip.Decoder({});
   this.currState = INIT;
+  
   var that = this;
   this.port.on('open', function() {
     // make ping packet
@@ -167,7 +176,7 @@ var iM880 = function(deviceID, deviceGroup, serport, sf, tx_pwr) {
           // console.log('iM880B pinged!');
           var config_msg = new Uint8Array([
             0x01, 0x0, deviceGroup, 0x10, (deviceID & 0xFF00), 
-            (deviceID & 0xFF), 0, 0x03, 0, 0xD5, 0xC8, 0xE4, 0, sf, 0x01,
+            (deviceID & 0xFF), 0, 0x03, 0, 0xD5, 0xC8, 0xE4, bandwidth, sf, error_coding,
             tx_pwr, 0, 0x01, 0x03, 0xE8, 0x0F, 0x0F, 0, 0, 0, 0 ]);
           var packet = that.makePacket(
               DEVMGMT_ID, DEVMGMT_MSG_SET_RADIO_CONFIG_REQ, config_msg);
@@ -255,6 +264,31 @@ iM880.prototype.sendConfirmed = function(destDevice, destGroup, msg) {
   this.port.write(packet);
   this.currState = WAIT_CMD;
 };
+
+iM880.prototype.configure = function(deviceID, deviceGroup, sf, bandwidth, error_coding, tx_pwr) {
+
+    if (sf == null) {
+        sf = 10;
+    }
+    if(tx_pwr == null) {
+        tx_pwr = 20;
+    }
+    if(bandwidth == null){
+        bandwidth = 0;
+    }
+    if(error_coding = null){
+        error_coding = 1;
+    }
+
+    var config_msg = new Uint8Array([
+            0x01, 0x0, deviceGroup, 0x10, (deviceID & 0xFF00), 
+            (deviceID & 0xFF), 0, 0x03, 0, 0xD5, 0xC8, 0xE4, bandwidth, sf, error_coding,
+            tx_pwr, 0, 0x01, 0x03, 0xE8, 0x0F, 0x0F, 0, 0, 0, 0 ]);
+    var packet = this.makePacket(
+              DEVMGMT_ID, DEVMGMT_MSG_SET_RADIO_CONFIG_REQ, config_msg);
+    this.currState = WAIT_CONFIG_ACK;
+    this.port.write(packet);
+}
 
 iM880.prototype.sendBroadcast = function(msg) {
   // make the packet and add destination addresses to msg

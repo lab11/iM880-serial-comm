@@ -28,3 +28,8 @@ device.on('rx-msg', function(data) {
   console.log('Received message!!');
   console.log(data);
 });
+
+setTimeout(function() {
+    console.log("Changing settings");
+    device.configure(DEVICE_ID, DEVICE_GROUP, 7,2,1,TX_PWR);
+}, 20*1000);
