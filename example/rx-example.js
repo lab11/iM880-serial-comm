@@ -14,12 +14,9 @@ TX_PWR = 10;
 // call the construction with and endpointID
 device = new iM880(SERIAL_PORT, DEVICE_ID, DEVICE_GROUP, SF, BANDWIDTH, ERROR_CODING, TX_PWR);
 // wait for config-done message and print endpointID
-var msg = new Uint8Array([ 9, 8, 10, 67 ]);
 device.on('config-done', function(statusmsg) {
   // print the ID of the endpoint
   console.log('Configuration status: ' + statusmsg);
-  // send a message
-  // device.send(0x10, 0x0009, msg);
 });
 
 // listen for new messages and print them

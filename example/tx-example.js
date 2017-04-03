@@ -19,7 +19,7 @@ device.on('config-done', function(statusmsg) {
   // print the ID of the endpoint
   console.log('Configuration status: ' + statusmsg);
   // send a message
-  //device.sendConfirmed(0x09, 0x11, msg);
+  //device.sendConfirmed(0x09, 0x10, msg);
   device.sendBroadcast(msg);
 });
 
