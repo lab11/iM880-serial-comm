@@ -1,6 +1,6 @@
 {
   "name": "iM880-serial-comm",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "serial communication with iM880",
   "main": "iM880.js",
   "repository": {
